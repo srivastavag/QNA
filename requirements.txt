@@ -1,0 +1,12 @@
+os
+fastapi
+faiss
+numpy
+requests
+sentence_transformers
+uvicorn
+glob
+typing
+PyPDF2
+torch
+transformers
