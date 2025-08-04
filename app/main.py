@@ -1,9 +1,27 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, Request, Form, status
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 import requests
 import os
+import json
+
+ALLOWED_IPS = set(json.loads(os.environ.get("ALLOWED_IPS", "[]")))
+
+
+class IPAllowMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        client_ip = request.client.host
+
+        if client_ip not in ALLOWED_IPS:
+            return PlainTextResponse(
+                f"Access denied for IP {client_ip}",
+                status_code=status.HTTP_403_FORBIDDEN,
+            )
+
+        return await call_next(request)
 
 app = FastAPI()
+app.add_middleware(IPAllowMiddleware)
 
 LLM_BACKEND_URL = "https://19788fe6e5cb.ngrok-free.app"
 
