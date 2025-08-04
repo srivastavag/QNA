@@ -1,9 +1,3 @@
 fastapi
-faiss-cpu
-numpy
-requests
-sentence_transformers
 uvicorn
-PyPDF2
-torch
-transformers
+requests
