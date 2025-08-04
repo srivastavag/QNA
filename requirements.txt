@@ -1,12 +1,9 @@
-os
 fastapi
-faiss
+faiss-cpu
 numpy
 requests
 sentence_transformers
 uvicorn
-glob
-typing
 PyPDF2
 torch
 transformers
