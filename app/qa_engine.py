@@ -24,17 +24,31 @@ index = faiss.IndexFlatIP(dimension)
 faiss.normalize_L2(doc_embeddings)
 index.add(np.array(doc_embeddings))
 
+LLM_API_BASE = "https://888dda73d7f8.ngrok-free.app" #"http://localhost:11434"  # default to local
+LLM_MODEL = "llama3"
+
 def call_local_llm(prompt: str) -> str:
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={"model": "llama3", "prompt": prompt, "stream": False}
-    )
-    data = response.json()
-    if "message" in data and "content" in data["message"]:
-        return data["message"]["content"].strip()
-    elif "response" in data:
-        return data["response"].strip()
-    return "Error: LLM response invalid."
+    try:
+        response = requests.post(
+            f"{LLM_API_BASE}/api/generate",
+            json={
+                "model": LLM_MODEL,
+                "prompt": prompt,
+                "stream": False
+            },
+            timeout=60
+        )
+        data = response.json()
+
+        if "message" in data and "content" in data["message"]:
+            return data["message"]["content"].strip()
+        elif "response" in data:
+            return data["response"].strip()
+
+        return "Error: Unexpected response format from LLM."
+    except Exception as e:
+        return f"Error: Failed to call LLM at {LLM_API_BASE} - {str(e)}"
+
 
 def answer_question(question: str, threshold: float = SIMILARITY_THRESHOLD, top_k: int = TOP_K) -> str:
     q_embedding = model.encode([question], normalize_embeddings=True)[0]
